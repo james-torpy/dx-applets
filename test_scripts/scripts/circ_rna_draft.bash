@@ -89,8 +89,8 @@ while [ $j -lt ${#filesTotal[@]} ]; do
 	echo This is the bowtie_line:
 	echo $bowtie_line
 
-	qsub -N bw2$uniqueID -wd $logDir -b y -j y -P GenomeInformatics -pe smp \
-	$big_numcores -V $bowtie_line
+	#qsub -N bw2$uniqueID -wd $logDir -b y -j y -P GenomeInformatics -pe smp \
+	#$big_numcores -V $bowtie_line
 
 	samtools_line="samtools view -hbuS $outDir/$uniqueID.sam | samtools sort - \
 	'$outDir/$uniqueID'"
@@ -99,8 +99,8 @@ while [ $j -lt ${#filesTotal[@]} ]; do
 	echo This is the samtools_line:
 	echo $samtools_line
 
-	qsub -N st$uniqueID -hold_jid bw2$uniqueID -wd $logDir -b y -j y -P GenomeInformatics \
-	-pe smp $small_numcores -V $samtools_line
+	#qsub -N st$uniqueID -hold_jid bw2$uniqueID -wd $logDir -b y -j y -P GenomeInformatics \
+	#-pe smp $small_numcores -V $samtools_line
 
 	#extract the unmapped reads:
 	samtools_view_line="samtools view -hf 4 '$outDir/$uniqueID.bam' \
@@ -110,8 +110,8 @@ while [ $j -lt ${#filesTotal[@]} ]; do
 	echo This is the samtools_view_line:
 	echo $samtools_view_line
 
-	qsub -N view$uniqueID -hold_jid st$uniqueID -wd $logDir -b y -j y -P GenomeInformatics \
-	-pe smp $small_numcores -V $samtools_view_line
+	#qsub -N view$uniqueID -hold_jid st$uniqueID -wd $logDir -b y -j y -P GenomeInformatics \
+	#-pe smp $small_numcores -V $samtools_view_line
 
 	#split unmapped reads onto anchors for independent mapping:
 	split_line="python $circDir/unmapped2anchors.py $outDir/unmapped_$uniqueID.bam \
@@ -121,8 +121,8 @@ while [ $j -lt ${#filesTotal[@]} ]; do
 	echo This is the split_line:
 	echo $split_line
 
-	qsub -N spl$uniqueID -hold_jid view$uniqueID -wd $logDir -b y -j y -P GenomeInformatics \
-	-pe smp $small_numcores -V $split_line
+	#qsub -N spl$uniqueID -hold_jid view$uniqueID -wd $logDir -b y -j y -P GenomeInformatics \
+	#-pe smp $small_numcores -V $split_line
 
 	#screen for spliced reads:
 	screen_line="bowtie2 -p 16 --reorder --mm -M20 --score-min=C,-15,0 -q -x $genomeFile \
@@ -132,8 +132,8 @@ while [ $j -lt ${#filesTotal[@]} ]; do
 	echo This is the screen_line:
 	echo $screen_line
 
-	qsub -N scr$uniqueID -hold_jid spl$uniqueID -wd $logDir -b y -j y -P GenomeInformatics \
-	-pe smp $big_numcores -V $screen_line
+	#qsub -N scr$uniqueID -hold_jid spl$uniqueID -wd $logDir -b y -j y -P GenomeInformatics \
+	#-pe smp $big_numcores -V $screen_line
 
 	cat_line="cat $outDir/${uniqueID}_anchors.sam | python $circDir/find_circ.py -G \
 	$chrDir -p $uniqueID -s $outDir/sites.log"
@@ -142,8 +142,8 @@ while [ $j -lt ${#filesTotal[@]} ]; do
 	echo This is the cat_line:
 	echo $cat_line
 
-	qsub -N cat$uniqueID -hold_jid scr$uniqueID -wd $logDir -b y -j y -P GenomeInformatics -pe \
-	smp $small_numcores -e $outDir/sites.reads -o $outDir/sites.bed -V $cat_line
+	#qsub -N cat$uniqueID -hold_jid scr$uniqueID -wd $logDir -b y -j y -P GenomeInformatics -pe \
+	#smp $small_numcores -e $outDir/sites.reads -o $outDir/sites.bed -V $cat_line
 
 	#filter the output:
 	grep_line="grep circ '$outDir/sites.bed'| grep -v chrM | python \
