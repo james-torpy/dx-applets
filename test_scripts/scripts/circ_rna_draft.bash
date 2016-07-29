@@ -82,8 +82,8 @@ while [ $j -lt ${#filesTotal[@]} ]; do
 
 	#map samples with Bowtie2:
 	bowtie_line="bowtie2 -p 16 --very-sensitive --mm -M20 --score-min=C,-15,0 -x \
-	'$genomeFile -q -1 $inFile1 -2 \
-	$inFile2' -S $outDir/$uniqueID.sam"
+	$genomeFile -q -1 $inFile1 -2 \
+	$inFile2 -S $outDir/$uniqueID.sam"
 
 	echo -e
 	echo This is the bowtie_line:
@@ -133,7 +133,7 @@ while [ $j -lt ${#filesTotal[@]} ]; do
 	echo $screen_line
 
 	#qsub -N scr$uniqueID -hold_jid spl$uniqueID -wd $logDir -b y -j y -P GenomeInformatics \
-	#-pe smp $big_numcores -V $screen_line
+	-pe smp $big_numcores -V $screen_line
 
 	cat_line="cat $outDir/${uniqueID}_anchors.sam | python $circDir/find_circ.py -G \
 	$chrDir -p $uniqueID -s $outDir/sites.log"
